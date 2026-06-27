@@ -1,0 +1,185 @@
+import { useState, useEffect } from 'react';
+import { StaticPageHeader } from './GuideScreen';
+
+// ---- GAS Web App URL (差し替えてください) ----
+const CLEARED_USERS_JSON_URL = 'https://script.google.com/macros/s/AKfycbxB1I8RExLe_j-vWK6FH-45WZh9poCU93k6uhGsUNEC6pXmRZ-q00R1ZnNdr01tGS3zEA/exec';
+// ------------------------------------------------
+
+interface ClearedUsersScreenProps {
+  onBack: () => void;
+}
+
+type Rank = 'BEGINNER' | 'ADVANCED';
+type FilterTab = 'ALL' | Rank;
+
+interface ClearedUser {
+  name: string;
+  date: string;
+  school: string;
+  rank: Rank;
+}
+
+const fallbackClearedUsers: ClearedUser[] = [
+  { name: 'Ra1mu',    date: '2026.07', school: '西東京スラックライン', rank: 'BEGINNER' },
+  { name: 'Kosayork', date: '2026.07', school: '西東京スラックライン', rank: 'ADVANCED' },
+  { name: 'Soketou',  date: '2026.07', school: '横浜スラックライン',   rank: 'BEGINNER' },
+  { name: 'Takayama', date: '2026.06', school: '横浜スラックライン',   rank: 'ADVANCED' },
+  { name: 'Higashi',  date: '2026.06', school: '埼玉スラックライン',   rank: 'BEGINNER' },
+  { name: 'Yamato',   date: '2026.06', school: '埼玉スラックライン',   rank: 'ADVANCED' },
+  { name: 'TNT',      date: '2026.05', school: '東京スラックライン',   rank: 'BEGINNER' },
+  { name: 'Sugi',     date: '2026.05', school: '東京スラックライン',   rank: 'ADVANCED' },
+  { name: 'Shibuya',  date: '2026.04', school: '渋谷スラックライン',   rank: 'BEGINNER' },
+  { name: 'Chiy',     date: '2026.04', school: '秋葉原スラックライン', rank: 'ADVANCED' },
+  { name: 'Kichi',    date: '2026.03', school: '吉祥寺スラックライン', rank: 'BEGINNER' },
+  { name: 'Mitaka',   date: '2026.03', school: '三鷹スラックライン',   rank: 'ADVANCED' },
+  { name: 'Tachik',   date: '2026.02', school: '立川スラックライン',   rank: 'BEGINNER' },
+  { name: 'Hachi',    date: '2026.02', school: '八王子スラックライン', rank: 'ADVANCED' },
+  { name: 'Fussa',    date: '2026.01', school: '福生スラックライン',   rank: 'BEGINNER' },
+  { name: 'Hamura',   date: '2026.01', school: '羽村スラックライン',   rank: 'ADVANCED' },
+];
+
+const filterTabs: { key: FilterTab; label: string }[] = [
+  { key: 'ALL',      label: 'ALL' },
+  { key: 'BEGINNER', label: 'BEGINNER' },
+  { key: 'ADVANCED', label: 'ADVANCED' },
+];
+
+function normalizeRank(raw: unknown): Rank | null {
+  if (typeof raw !== 'string') return null;
+  const upper = raw.trim().toUpperCase();
+  if (upper === 'BEGINNER') return 'BEGINNER';
+  if (upper === 'ADVANCED') return 'ADVANCED';
+  return null;
+}
+
+function parseUsers(data: unknown): ClearedUser[] {
+  if (!Array.isArray(data)) return [];
+  const result: ClearedUser[] = [];
+  for (const item of data) {
+    if (typeof item !== 'object' || item === null) continue;
+    const obj = item as Record<string, unknown>;
+    const rank = normalizeRank(obj.rank);
+    if (!rank) continue;
+    result.push({
+      name:   typeof obj.name   === 'string' ? obj.name   : '',
+      date:   typeof obj.date   === 'string' ? obj.date   : '',
+      school: typeof obj.school === 'string' ? obj.school : '',
+      rank,
+    });
+  }
+  return result;
+}
+
+export function ClearedUsersScreen({ onBack }: ClearedUsersScreenProps) {
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('ALL');
+  const [clearedUsersData, setClearedUsersData] = useState<ClearedUser[]>(fallbackClearedUsers);
+  const [clearedUsersLoading, setClearedUsersLoading] = useState(true);
+  const [clearedUsersError, setClearedUsersError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setClearedUsersLoading(true);
+    setClearedUsersError(false);
+
+    fetch(CLEARED_USERS_JSON_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json: unknown) => {
+        if (cancelled) return;
+        const parsed = parseUsers(json);
+        setClearedUsersData(parsed);
+        setClearedUsersLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setClearedUsersData(fallbackClearedUsers);
+        setClearedUsersError(true);
+        setClearedUsersLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
+
+  const filtered = activeFilter === 'ALL'
+    ? clearedUsersData
+    : clearedUsersData.filter((u) => u.rank === activeFilter);
+
+  return (
+    <div className="static-page cleared-users-page flex flex-col min-h-screen bg-background">
+      <StaticPageHeader title="クリア者一覧" onBack={onBack} />
+
+      <div className="cleared-users-content flex-1 overflow-y-auto px-6 py-6 pb-16">
+        {/* Filter tabs */}
+        <div className="cleared-filter-tabs flex items-center gap-4 mb-6">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveFilter(tab.key)}
+              className={`cleared-filter-button font-jost font-bold text-sm tracking-wider px-4 py-1.5 rounded-full transition-colors ${
+                activeFilter === tab.key
+                  ? 'cleared-filter-button-active bg-text-primary text-white'
+                  : 'text-text-primary'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {clearedUsersLoading ? (
+          <p className="py-10 text-center font-jp text-sm text-text-secondary">読み込み中...</p>
+        ) : (
+          <>
+            {/* Table */}
+            <div className="cleared-users-table w-full">
+              {/* Header */}
+              <div className="cleared-users-header grid grid-cols-[2fr_1.5fr_2.5fr_auto] gap-x-2 pb-2 border-b-2 border-text-primary">
+                <span className="cleared-users-header-cell font-jost font-bold text-xs text-text-primary tracking-wider">NAME</span>
+                <span className="cleared-users-header-cell font-jost font-bold text-xs text-text-primary tracking-wider">DATE</span>
+                <span className="cleared-users-header-cell font-jost font-bold text-xs text-text-primary tracking-wider">SCHOOL</span>
+                <span className="cleared-users-header-cell sr-only">RANK</span>
+              </div>
+
+              {/* Rows */}
+              <ul className="cleared-users-list">
+                {filtered.length === 0 ? (
+                  <li className="cleared-users-empty py-10 text-center font-jp text-sm text-text-secondary">
+                    該当するクリア者はまだいません
+                  </li>
+                ) : (
+                  filtered.map((user, i) => (
+                    <li
+                      key={i}
+                      className="cleared-user-row grid grid-cols-[2fr_1.5fr_2.5fr_auto] gap-x-2 items-center py-3.5 border-b border-gray-200"
+                    >
+                      <span className="cleared-user-name font-jost text-sm text-text-primary">{user.name}</span>
+                      <span className="cleared-user-date font-jost text-sm text-text-primary">{user.date}</span>
+                      <span className="cleared-user-school font-jp text-sm text-text-primary">{user.school}</span>
+                      <span
+                        className={`cleared-user-rank font-jost font-bold text-xs px-2.5 py-1 rounded-full text-gray-900 ${
+                          user.rank === 'BEGINNER'
+                            ? 'cleared-user-rank-bgn bg-emerald-400'
+                            : 'cleared-user-rank-adv bg-violet-400'
+                        }`}
+                      >
+                        {user.rank === 'BEGINNER' ? 'BGN' : 'ADV'}
+                      </span>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+
+            {clearedUsersError && (
+              <p className="mt-6 text-center font-jp text-xs text-text-secondary">
+                公開データを取得できなかったため、サンプルデータを表示しています
+              </p>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

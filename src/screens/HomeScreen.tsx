@@ -1,0 +1,322 @@
+import { useEffect, useRef, useState } from 'react';
+import { TabBar } from '../components/TabBar';
+import menuIcon from '../assets/icons/icn-menu.svg';
+import clearIcon from '../assets/icons/icn-clear.svg';
+import { TechniqueCard } from '../components/TechniqueCard';
+import { TechniqueDetailModal } from '../components/TechniqueDetailModal';
+import { HamburgerMenuModal } from '../components/HamburgerMenuModal';
+import { getTechniquesByRank, beginnerTechniques, advancedTechniques, startTechniques } from '../data/techniques';
+import { Technique, Rank } from '../types/technique';
+import { getImageUrl } from '../utils/images';
+import trendIcon from '../assets/icons/icn-trend.svg';
+import profIcon from '../assets/icons/icn-prof.svg';
+import type { PendingClear } from '../App';
+
+type Tab = 'Start' | 'Beginner' | 'Advanced';
+
+interface Profile {
+  nickname: string;
+  avatarUrl: string;
+}
+
+interface HomeScreenProps {
+  profile: Profile;
+  clearedIds: string[];
+  pendingClear: PendingClear | null;
+  onClearPending: () => void;
+  initialTab?: Rank;
+  onGuide?: () => void;
+  onPrivacy?: () => void;
+  onAbout?: () => void;
+  onClearedUsers?: () => void;
+}
+
+// ---- helpers ----
+
+function withCleared(techniques: Technique[], clearedIds: string[]): Technique[] {
+  return techniques.map((t) => ({ ...t, cleared: clearedIds.includes(t.id) }));
+}
+
+function isRankComplete(rank: Rank, clearedSkillIds: string[]): boolean {
+  const techniques = rank === 'Start' ? startTechniques : rank === 'Beginner' ? beginnerTechniques : advancedTechniques;
+  return techniques.length > 0 && techniques.every((t) => clearedSkillIds.includes(t.id));
+}
+
+function isRankUnlocked(rank: Rank, clearedSkillIds: string[]): boolean {
+  if (rank === 'Start') return true;
+  // BEGINNER and ADVANCED both unlock when START is complete
+  return isRankComplete('Start', clearedSkillIds);
+}
+
+function getSafeHomeRank(requested: Rank, clearedSkillIds: string[]): Tab {
+  return isRankUnlocked(requested, clearedSkillIds) ? requested : 'Start';
+}
+
+// ---- ProgressBar ----
+
+function ProgressBar({ cleared, total }: { cleared: number; total: number }) {
+  const pct = total > 0 ? Math.min((cleared / total) * 100, 100) : 0;
+  return (
+    <div className="progress-area flex items-center gap-2 pt-7">
+      <img src={trendIcon} alt="trend" className="progress-trend-icon w-5 h-5 flex-shrink-0" />
+      <span className="progress-number font-jost text-sm text-text-secondary leading-none">0</span>
+      <div className="relative flex-1 mx-1">
+        <div
+          className="progress-marker absolute bottom-full -translate-x-1/2 flex flex-col items-center mb-1"
+          style={{ left: `${pct}%` }}
+        >
+          <div className="bg-black text-white font-jost font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center">
+            {cleared}
+          </div>
+          <div className="w-2 h-1.5 bg-black" style={{ clipPath: 'polygon(50% 100%, 0% 0%, 100% 0%)' }} />
+        </div>
+        <div className="progress-track h-1.5 bg-gray-200 rounded-full">
+          <div className="progress-fill h-full bg-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+      <span className="progress-number font-jost text-sm text-text-secondary leading-none">{total}</span>
+    </div>
+  );
+}
+
+// ---- NiceDialog ----
+
+function NiceDialog({ onClose }: { onClose: () => void }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    timerRef.current = setTimeout(onClose, 2500);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [onClose]);
+
+  return (
+    <div
+      className="clear-dialog-overlay fixed inset-0 z-[70] flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={onClose}
+    >
+      <div
+        className="clear-dialog bg-white rounded-3xl px-12 py-10 flex flex-col items-center gap-4 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="clear-dialog-icon-wrap w-20 h-20 flex items-center justify-center">
+          <img src={clearIcon} alt="clear" className="clear-dialog-icon w-20 h-20" />
+        </div>
+        <p className="clear-dialog-text font-jost font-bold text-xl text-text-primary tracking-wider">
+          NICE!!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ---- CompleteModal ----
+
+const RANK_COMPLETE_CONFIG: Record<Rank, { label: string; bg: string; image: string; modalClass: string }> = {
+  Start:    { label: 'START',    bg: '#9dd6ff', image: 'start-complete.webp',    modalClass: 'complete-modal-start' },
+  Beginner: { label: 'BEGINNER', bg: '#a8e6c8', image: 'beginner-complete.webp', modalClass: 'complete-modal-beginner' },
+  Advanced: { label: 'ADVANCED', bg: '#c4b5fd', image: 'advanced-complete.webp', modalClass: 'complete-modal-advanced' },
+};
+
+function CompleteModal({ rank, onClose }: { rank: Rank; onClose: () => void }) {
+  const config = RANK_COMPLETE_CONFIG[rank];
+  const imgUrl = getImageUrl(config.image);
+
+  return (
+    <div
+      className="complete-modal-overlay fixed inset-0 z-[70] flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+    >
+      <div
+        className={`complete-modal ${config.modalClass} w-full max-w-md rounded-t-3xl animate-slide-up overflow-hidden`}
+        style={{ backgroundColor: config.bg, maxHeight: '90dvh' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center px-4 pt-10 pb-10 gap-6">
+          <div className="complete-modal-image-wrap w-full flex justify-center">
+            {imgUrl ? (
+              <img
+                src={imgUrl}
+                alt={`${config.label} complete`}
+                className="complete-modal-image object-contain"
+                style={{ height: '480px', width: 'auto', maxWidth: '100%' }}
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-16">
+                <p className="complete-modal-rank font-jost font-bold text-text-primary" style={{ fontSize: '3rem' }}>{config.label}</p>
+                <p className="complete-modal-complete font-jost font-bold text-text-primary text-lg tracking-widest">COMPLETE</p>
+              </div>
+            )}
+          </div>
+
+          <button
+            className="complete-modal-close-button font-jost font-bold text-sm tracking-widest px-16 py-3.5 rounded-full border-2 border-black bg-white text-text-primary"
+            onClick={onClose}
+          >
+            CLOSE
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- UnlockDialog ----
+
+function UnlockDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="unlock-dialog-overlay fixed inset-0 z-[75] flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+    >
+      <div
+        className="unlock-dialog bg-white rounded-3xl px-8 py-10 flex flex-col items-center gap-4 shadow-xl mx-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="unlock-dialog-title font-jost font-bold text-xl text-text-primary tracking-wider text-center">
+          RANK UNLOCK!
+        </p>
+        <p className="unlock-dialog-text font-jp text-sm text-text-primary text-center leading-relaxed">
+          BEGINNER / ADVANCED の<br />ロックを解除しました
+        </p>
+        <p className="font-jp text-xs text-text-secondary text-center">
+          次のステップにチャレンジできます
+        </p>
+        <button
+          className="unlock-dialog-button font-jost font-bold text-sm tracking-widest px-12 py-3.5 rounded-full bg-black text-white mt-2"
+          onClick={onClose}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---- HomeScreen ----
+
+export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, initialTab, onGuide, onPrivacy, onAbout, onClearedUsers }: HomeScreenProps) {
+  const [activeTab, setActiveTab] = useState<Tab>(() => getSafeHomeRank(initialTab ?? 'Start', clearedIds));
+  const [selectedTechnique, setSelectedTechnique] = useState<Technique | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingUnlockDialog, setPendingUnlockDialog] = useState(false);
+
+  const rawTechniques = getTechniquesByRank(activeTab);
+  const currentTechniques = withCleared(rawTechniques, clearedIds);
+  const clearedCount = currentTechniques.filter((t) => t.cleared).length;
+  const totalCount = currentTechniques.length;
+
+  const bgnCleared = withCleared(beginnerTechniques, clearedIds).filter((t) => t.cleared).length;
+  const advCleared = withCleared(advancedTechniques, clearedIds).filter((t) => t.cleared).length;
+
+  const checkUnlocked = (tab: Tab) => isRankUnlocked(tab, clearedIds);
+
+  const avatarUrl = getImageUrl('default-user.webp');
+
+  const handleDetailOpen = (technique: Technique) => {
+    const enriched = { ...technique, cleared: clearedIds.includes(technique.id) };
+    setSelectedTechnique(enriched);
+  };
+
+  const handleCompleteClose = () => {
+    if (pendingClear?.rank === 'Start') {
+      setPendingUnlockDialog(true);
+    }
+    onClearPending();
+  };
+
+  return (
+    <div className="page-home flex flex-col min-h-screen bg-background pb-28">
+      {/* Profile Header */}
+      <div className="home-header px-6 pt-6 pb-4">
+        <div className="profile-header flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div className="profile-avatar w-20 h-20 rounded-full bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="avatar" className="profile-avatar-icon w-full h-full object-cover" />
+              ) : avatarUrl ? (
+                <img src={avatarUrl} alt="avatar" className="profile-avatar-icon w-full h-full object-cover" />
+              ) : (
+                <img src={profIcon} alt="profile" className="profile-avatar-icon w-10 h-10 opacity-40" />
+              )}
+            </div>
+            <div className="profile-info">
+              <p className="profile-name font-jost font-normal text-xl text-text-primary mb-2">
+                {profile.nickname || 'Kosayork'}
+              </p>
+              <div className="profile-progress flex items-center gap-3">
+                <div className="progress-badge progress-badge-bgn flex items-center gap-1.5">
+                  <span className="bg-green-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">BGN</span>
+                  <span className="font-jost text-sm text-text-primary">{bgnCleared}/10</span>
+                </div>
+                <div className="progress-badge progress-badge-adv flex items-center gap-1.5">
+                  <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">ADV</span>
+                  <span className="font-jost text-sm text-text-primary">{advCleared}/10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setMenuOpen(true)} className="hamburger-button w-10 h-10 flex items-center justify-center">
+            <img src={menuIcon} alt="menu" className="hamburger-line w-10 h-10" />
+          </button>
+        </div>
+      </div>
+
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} isUnlocked={checkUnlocked} />
+
+      <div className="spec-progress-row flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-2">
+          <span className="spec-label font-jost font-bold text-base text-text-primary">SPEC</span>
+          <span className="spec-name font-jp text-sm text-text-secondary">ラック</span>
+        </div>
+        <div className="flex-1 ml-6">
+          <ProgressBar cleared={clearedCount} total={totalCount} />
+        </div>
+      </div>
+
+      <div className="skill-grid px-6">
+        <div className="grid grid-cols-2 gap-3">
+          {currentTechniques.map((technique) => (
+            <TechniqueCard key={technique.id} technique={technique} onTap={() => handleDetailOpen(technique)} />
+          ))}
+        </div>
+      </div>
+
+      <p className="challenge-note font-jp text-sm text-text-secondary px-6 mt-5">
+        ※チャレンジは3回まで
+      </p>
+
+      {selectedTechnique && (
+        <TechniqueDetailModal technique={selectedTechnique} onClose={() => setSelectedTechnique(null)} />
+      )}
+
+      {menuOpen && (
+        <HamburgerMenuModal
+          onClose={() => setMenuOpen(false)}
+          onSelectItem={(item) => {
+            setMenuOpen(false);
+            if (item === 'guide') onGuide?.();
+            if (item === 'privacy') onPrivacy?.();
+            if (item === 'about') onAbout?.();
+            if (item === 'cleared') onClearedUsers?.();
+          }}
+        />
+      )}
+
+      {/* NiceDialog */}
+      {pendingClear?.type === 'nice' && (
+        <NiceDialog onClose={onClearPending} />
+      )}
+
+      {/* CompleteModal */}
+      {pendingClear?.type === 'complete' && (
+        <CompleteModal rank={pendingClear.rank} onClose={handleCompleteClose} />
+      )}
+
+      {/* UnlockDialog — shown after START COMPLETE is closed */}
+      {pendingUnlockDialog && (
+        <UnlockDialog onClose={() => setPendingUnlockDialog(false)} />
+      )}
+    </div>
+  );
+}

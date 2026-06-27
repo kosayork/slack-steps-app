@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,700;1,700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #f3f3f3;
+  --color-card: #ffffff;
+  --color-accent: #0d99ff;
+  --color-blue-light: #9dd6ff;
+  --color-text: rgba(0, 0, 0, 0.84);
+  --color-subtext: rgba(0, 0, 0, 0.57);
+  --radius-base: 24px;
+  --shadow-soft: drop-shadow(0 0 20px rgba(0, 0, 0, 0.08));
+}
+
+@layer base {
+  html {
+    font-family: 'Jost', 'Noto Sans JP', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #f3f3f3;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .font-jp {
+    font-family: 'Noto Sans JP', 'Jost', system-ui, sans-serif;
+  }
+
+  .font-en {
+    font-family: 'Jost', 'Noto Sans JP', system-ui, sans-serif;
+  }
+
+  .grade-number {
+    font-family: 'Jost', sans-serif;
+    font-style: italic;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .card-shadow {
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.08));
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-dialog-in {
+    animation: dialogIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes dialogIn {
+    from {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* ==============================
+   SLACK STEPS Design Adjustments
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* App Layout */
+
+/* Profile Header */
+
+/* Rank Tabs */
+
+/* Spec Progress */
+
+/* Skill Grid */
+
+/* Skill Card */
+
+/* Footer Nav */
+
+/* ==============================
+   Skill Detail Modal
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Hamburger Menu Modal
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Profile Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Check Password Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Check List Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Approval QR Modal
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   NICE Dialog
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Complete Modal
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Static Pages / Guide Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Static Pages / Privacy Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Static Pages / About Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* ==============================
+   Static Pages / Cleared Users Page
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* --- Page fade-in (Home after Splash/Tutorial) --- */
+.page-fade {
+  opacity: 0;
+  transition: opacity 0.38s ease;
+}
+
+.page-fade-in {
+  opacity: 1;
+}
+
+/* ==============================
+   Splash / Tutorial
+   手動でFigma寄せするための調整エリア
+================================= */
+
+/* --- Tutorial screen leave fade --- */
+.tutorial-screen {
+  transition: opacity 0.38s ease;
+  opacity: 1;
+}
+
+.tutorial-screen-leaving {
+  opacity: 0;
+}
+
+/* --- Tutorial content animation --- */
+.tutorial-content {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.tutorial-content-exit {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+
+.tutorial-content-enter {
+  opacity: 0;
+  transform: translateX(28px);
+}

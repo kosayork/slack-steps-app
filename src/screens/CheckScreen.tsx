@@ -1,0 +1,444 @@
+import { useRef, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { getImageUrl } from '../utils/images';
+import { getTechniquesByRank, startTechniques, beginnerTechniques, advancedTechniques } from '../data/techniques';
+import { Technique, Rank } from '../types/technique';
+import type { PendingClear } from '../App';
+
+const INSTRUCTOR_PIN = '2327';
+const STORAGE_KEY_AUTH = 'slackStepsInstructorAuthorized';
+const AUTH_DURATION_MS = 24 * 60 * 60 * 1000;
+
+interface AuthRecord {
+  authorized: boolean;
+  expiresAt: number;
+}
+
+function readAuthRecord(): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!raw) return false;
+    const record: AuthRecord = JSON.parse(raw);
+    if (record.authorized && record.expiresAt > Date.now()) return true;
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    return false;
+  } catch {
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    return false;
+  }
+}
+
+function saveAuthRecord() {
+  const record: AuthRecord = { authorized: true, expiresAt: Date.now() + AUTH_DURATION_MS };
+  localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(record));
+}
+
+function clearAuthRecord() {
+  localStorage.removeItem(STORAGE_KEY_AUTH);
+}
+
+const ALL_BY_RANK: Record<Rank, Technique[]> = {
+  Start: startTechniques,
+  Beginner: beginnerTechniques,
+  Advanced: advancedTechniques,
+};
+
+function isRankComplete(rank: Rank, clearedIds: string[]): boolean {
+  return ALL_BY_RANK[rank].every((t) => clearedIds.includes(t.id));
+}
+
+interface CheckScreenProps {
+  onBack: () => void;
+  clearedIds: string[];
+  onClearSkills: (newIds: string[], pending: PendingClear) => void;
+  onResetCleared: () => void;
+}
+
+// ---- shared header ----
+
+function CheckHeader({ onBack }: { onBack: () => void }) {
+  const thumbUrl = getImageUrl('instructor-thumb.webp');
+  return (
+    <div className="check-header-bar flex items-center px-4 py-4 bg-background border-b border-gray-200 gap-4">
+      <button
+        onClick={onBack}
+        className="check-back-button w-10 h-10 bg-card rounded-full flex items-center justify-center card-shadow flex-shrink-0"
+      >
+        <ChevronLeft size={20} className="text-text-primary" />
+      </button>
+      <div className="flex items-center gap-2">
+        <div className="check-header-icon w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+          {thumbUrl ? (
+            <img src={thumbUrl} alt="instructor" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gray-300" />
+          )}
+        </div>
+        <span className="check-header-title font-jost font-bold text-base text-text-primary tracking-widest">
+          CHECK
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ---- approval QR modal ----
+
+const RANK_BADGE_CLASS: Record<Rank, string> = {
+  Start: 'approval-rank-badge-start bg-green-100 text-green-800',
+  Beginner: 'approval-rank-badge-beginner bg-blue-100 text-blue-800',
+  Advanced: 'approval-rank-badge-advanced bg-purple-200 text-purple-900',
+};
+
+const RANK_LABEL: Record<Rank, string> = {
+  Start: 'START',
+  Beginner: 'BEGINNER',
+  Advanced: 'ADVANCED',
+};
+
+interface ApprovalQRModalProps {
+  skill: Technique;
+  clearedIds: string[];
+  onClose: () => void;
+  onTestRead: (skill: Technique) => void;
+}
+
+function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRModalProps) {
+  const thumbUrl = getImageUrl(skill.thumbnail);
+  const qrUrl = getImageUrl(skill.qr);
+  const alreadyCleared = clearedIds.includes(skill.id);
+
+  return (
+    <div
+      className="approval-qr-overlay fixed inset-0 z-[60] flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={onClose}
+    >
+      <div
+        className="approval-qr-modal w-full max-w-md bg-white rounded-t-3xl animate-slide-up overflow-hidden"
+        style={{ maxHeight: '85dvh', display: 'flex', flexDirection: 'column' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="approval-qr-modal-inner overflow-y-auto flex-1">
+          <div className="approval-qr-modal-content flex flex-col items-center px-6 pt-8 pb-10 gap-4">
+
+            <p className="approval-qr-title font-jp font-bold text-xl text-text-primary">承認QR</p>
+
+            <span className={`approval-rank-badge font-jost font-bold text-xs tracking-wider px-4 py-1.5 rounded-full ${RANK_BADGE_CLASS[skill.rank]}`}>
+              {RANK_LABEL[skill.rank]}
+            </span>
+
+            <div className="approval-skill-info flex items-center gap-3 w-full justify-center">
+              <div className="approval-skill-thumb w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                {thumbUrl ? (
+                  <img src={thumbUrl} alt="" className="approval-skill-thumb-image w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-300" />
+                )}
+              </div>
+              <div className="approval-skill-grade flex items-end gap-1 flex-shrink-0">
+                <span className="approval-skill-grade-number font-jost font-bold text-3xl text-text-primary leading-none">
+                  {skill.gradeNumber}
+                </span>
+                <span className="approval-skill-grade-label font-jp text-sm text-text-secondary mb-0.5">級</span>
+              </div>
+              <span className="approval-skill-name font-jp text-base text-text-primary">{skill.name}</span>
+            </div>
+
+            <div className="approval-qr-image-wrap w-full flex justify-center py-2">
+              {qrUrl ? (
+                <img src={qrUrl} alt={`${skill.grade} ${skill.name} QR`} className="approval-qr-image w-56 h-56 object-contain" />
+              ) : (
+                <div className="approval-qr-placeholder w-56 h-56 bg-gray-100 rounded-2xl flex items-center justify-center">
+                  <span className="font-jp text-sm text-text-secondary">QR準備中</span>
+                </div>
+              )}
+            </div>
+
+            {/* Test read button */}
+            <button
+              className="approval-qr-test-button font-jost font-bold text-sm tracking-widest px-8 py-2.5 rounded-full bg-accent text-white w-full"
+              onClick={() => onTestRead(skill)}
+              disabled={alreadyCleared}
+            >
+              {alreadyCleared ? 'クリア済み' : '読み取りテスト'}
+            </button>
+
+            <div className="approval-qr-actions w-full flex justify-center pt-1">
+              <button
+                className="approval-qr-close-button font-jost font-bold text-sm tracking-widest px-12 py-3 rounded-full border-2 border-black bg-white text-text-primary"
+                onClick={onClose}
+              >
+                CLOSE
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- check list ----
+
+const RANK_TABS: { rank: Rank; label: string }[] = [
+  { rank: 'Start', label: 'START' },
+  { rank: 'Beginner', label: 'BEGINNER' },
+  { rank: 'Advanced', label: 'ADVANCED' },
+];
+
+function SkillThumb({ filename }: { filename: string }) {
+  const url = getImageUrl(filename);
+  return (
+    <div className="check-skill-thumb w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+      {url ? (
+        <img src={url} alt="" className="check-skill-thumb-image w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full bg-gray-300" />
+      )}
+    </div>
+  );
+}
+
+function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) => void }) {
+  return (
+    <button
+      className="check-skill-item w-full bg-card rounded-3xl px-4 py-3 flex items-center gap-4 text-left active:opacity-70 transition-opacity"
+      onClick={() => onTap(skill)}
+    >
+      <SkillThumb filename={skill.thumbnail} />
+      <div className="check-skill-grade flex items-end gap-1 flex-shrink-0">
+        <span className="check-skill-grade-number font-jost font-bold text-3xl text-text-primary leading-none">
+          {skill.gradeNumber}
+        </span>
+        <span className="check-skill-grade-label font-jp text-sm text-text-secondary mb-0.5">級</span>
+      </div>
+      <span className="check-skill-name font-jp text-base text-text-primary">{skill.name}</span>
+    </button>
+  );
+}
+
+interface CheckListProps {
+  clearedIds: string[];
+  onClearSkills: (newIds: string[], pending: PendingClear) => void;
+  onResetAuth: () => void;
+  onResetCleared: () => void;
+}
+
+function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: CheckListProps) {
+  const [activeRank, setActiveRank] = useState<Rank>('Beginner');
+  const [selectedApprovalSkill, setSelectedApprovalSkill] = useState<Technique | null>(null);
+  const skills = getTechniquesByRank(activeRank);
+
+  const handleSkillTap = (skill: Technique) => setSelectedApprovalSkill(skill);
+  const handleModalClose = () => setSelectedApprovalSkill(null);
+
+  const handleTestRead = (skill: Technique) => {
+    const nextCleared = Array.from(new Set([...clearedIds, skill.id]));
+    const isComplete = isRankComplete(skill.rank, nextCleared);
+    const pending: PendingClear = isComplete
+      ? { type: 'complete', rank: skill.rank }
+      : { type: 'nice', rank: skill.rank };
+    onClearSkills([skill.id], pending);
+  };
+
+  const handleDebugCompleteRank = () => {
+    const allIds = ALL_BY_RANK[activeRank].map((t) => t.id);
+    const pending: PendingClear = { type: 'complete', rank: activeRank };
+    onClearSkills(allIds, pending);
+  };
+
+  return (
+    <div className="flex flex-col flex-1 overflow-hidden">
+      {/* Rank tabs */}
+      <div className="check-rank-tabs flex border-b border-gray-200 bg-background">
+        {RANK_TABS.map(({ rank, label }) => {
+          const isActive = activeRank === rank;
+          return (
+            <button
+              key={rank}
+              className={`check-rank-tab relative flex-1 py-3 text-sm font-jost font-bold tracking-wider transition-colors ${
+                isActive ? 'check-rank-tab-active text-text-primary' : 'text-text-secondary'
+              }`}
+              onClick={() => setActiveRank(rank)}
+            >
+              {label}
+              <span
+                className={`check-rank-tab-line absolute bottom-0 left-0 right-0 h-0.5 transition-opacity ${
+                  isActive ? 'check-rank-tab-line-active bg-black opacity-100' : 'opacity-0'
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Skill list */}
+      <div className="check-skill-list flex-1 overflow-y-auto px-4 py-4 pb-4">
+        {skills.length === 0 ? (
+          <p className="check-empty-state font-jp text-text-secondary text-sm text-center py-10">
+            このランクの承認リストは準備中です
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {skills.map((skill) => (
+              <SkillItem key={skill.id} skill={skill} onTap={handleSkillTap} />
+            ))}
+          </div>
+        )}
+
+        {/* Debug area */}
+        <div className="text-center mt-8 flex flex-col gap-3 items-center">
+          <button
+            className="debug-complete-rank-button font-jp text-xs text-blue-500 underline"
+            onClick={handleDebugCompleteRank}
+          >
+            このランクを全クリアにする
+          </button>
+          <button
+            className="clear-state-reset-button font-jp text-xs text-text-secondary underline"
+            onClick={onResetCleared}
+          >
+            クリア状態をリセット
+          </button>
+          <button
+            className="check-auth-reset-button font-jp text-xs text-text-secondary underline"
+            onClick={onResetAuth}
+          >
+            認証をリセット
+          </button>
+        </div>
+      </div>
+
+      {/* Approval QR modal */}
+      {selectedApprovalSkill && (
+        <ApprovalQRModal
+          skill={selectedApprovalSkill}
+          clearedIds={clearedIds}
+          onClose={handleModalClose}
+          onTestRead={handleTestRead}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---- main export ----
+
+export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared }: CheckScreenProps) {
+  const [isAuthorized, setIsAuthorized] = useState(() => readAuthRecord());
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mainUrl = getImageUrl('instructor-main.webp');
+  const focusInput = () => inputRef.current?.focus();
+
+  const handleResetAuth = () => {
+    clearAuthRecord();
+    setIsAuthorized(false);
+  };
+
+  if (isAuthorized) {
+    return (
+      <div className="check-page flex flex-col min-h-screen bg-background">
+        <CheckHeader onBack={onBack} />
+        <CheckList
+          clearedIds={clearedIds}
+          onClearSkills={onClearSkills}
+          onResetAuth={handleResetAuth}
+          onResetCleared={onResetCleared}
+        />
+      </div>
+    );
+  }
+
+  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setPin(val);
+    setError('');
+  };
+
+  const handleEnter = () => {
+    if (pin.length !== 4) return;
+    if (pin === INSTRUCTOR_PIN) {
+      saveAuthRecord();
+      setIsAuthorized(true);
+      setError('');
+    } else {
+      setError('パスワードが違います');
+      setPin('');
+    }
+  };
+
+  return (
+    <div className="check-page flex flex-col min-h-screen bg-background">
+      <CheckHeader onBack={onBack} />
+
+      <div className="flex-1 overflow-y-auto pb-12">
+        <div className="check-hero flex justify-center px-6 pt-6 pb-4">
+          {mainUrl ? (
+            <img src={mainUrl} alt="Instructor Mode" className="check-hero-image w-full max-w-xs object-contain" />
+          ) : (
+            <div className="w-full max-w-xs aspect-square bg-gray-100 rounded-2xl" />
+          )}
+        </div>
+
+        <div className="check-auth-section px-6">
+          <p className="check-auth-title font-jp text-sm text-text-secondary mb-4">インストラクター認証</p>
+
+          <div className="check-pin-boxes flex gap-3 mb-2 cursor-text" onClick={focusInput}>
+            {[0, 1, 2, 3].map((i) => {
+              const isFilled = Boolean(pin[i]);
+              const isActive = isFocused && (pin.length === i || (pin.length === 4 && i === 3));
+              return (
+                <div
+                  key={i}
+                  className={[
+                    'check-pin-box flex-1 aspect-square bg-card rounded-2xl flex items-center justify-center transition-all',
+                    isFilled ? 'check-pin-box-filled shadow-md' : 'shadow-sm',
+                    isActive ? 'check-pin-box-active ring-2 ring-accent bg-white' : '',
+                  ].join(' ')}
+                  onClick={focusInput}
+                >
+                  <span className="font-jost font-bold text-3xl text-text-primary">{pin[i] ?? ''}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={4}
+            value={pin}
+            onChange={handlePinChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className="check-pin-input-hidden sr-only"
+            aria-label="4桁のPIN"
+          />
+
+          {error && (
+            <p className="check-pin-error font-jp text-sm text-red-500 text-center mb-4">{error}</p>
+          )}
+
+          <button
+            onClick={handleEnter}
+            disabled={pin.length !== 4}
+            className={`check-enter-button w-full py-4 rounded-full font-jost font-bold text-sm tracking-widest mt-4 transition-opacity ${
+              pin.length === 4
+                ? 'bg-black text-white'
+                : 'check-enter-button-disabled bg-black text-white opacity-30 cursor-not-allowed'
+            }`}
+          >
+            ENTER
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
