@@ -16,7 +16,7 @@ export function TechniqueCard({ technique, onTap }: TechniqueCardProps) {
   return (
     <button
       onClick={onTap}
-      className={`skill-card${technique.cleared ? ' skill-card-cleared' : ''} relative w-full bg-card rounded-2xl p-3 text-left card-shadow flex items-center gap-3`}
+      className={`skill-card${technique.cleared ? ' skill-card-cleared' : ''} relative w-full bg-card rounded-2xl p-2 text-left card-shadow flex items-center gap-3`}
     >
       {/* Clear badge */}
       {technique.cleared && (
@@ -48,7 +48,7 @@ export function TechniqueCard({ technique, onTap }: TechniqueCardProps) {
 
       {/* Grade — bottom right */}
       <div className="skill-grade flex items-end gap-0.5 self-end pb-0.5">
-        <span className="skill-grade-number grade-number text-3xl text-text-primary leading-none">
+        <span className="skill-grade-number grade-number text-2xl text-text-primary leading-none">
           {technique.gradeNumber}
         </span>
         <span className="skill-grade-label font-jp text-xs text-text-primary mb-0.5">級</span>

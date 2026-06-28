@@ -255,14 +255,14 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
 
           {/* Nickname */}
           <div className="profile-field mb-4">
-            <label className="profile-label block font-jp text-sm text-text-secondary mb-2">
+            <label className="profile-label block font-jp text-sm text-text-primary mb-2">
               ニックネーム
             </label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder="SLACK BOY"
+              placeholder="SLACKER"
               className="profile-input w-full bg-card rounded-2xl px-4 py-3.5 text-text-primary placeholder:text-text-secondary/40 border border-gray-100 focus:border-accent focus:outline-none font-jp"
             />
           </div>
@@ -287,7 +287,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
           {/* Save button */}
           <button
             onClick={handleSave}
-            className="profile-save-button w-full py-4 rounded-full bg-black text-white font-jp font-bold text-base mt-2"
+            className="profile-save-button w-56 mx-auto block py-4 rounded-full bg-black text-white font-jp font-bold text-base mt-2"
           >
             保存する
           </button>
@@ -355,7 +355,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
         <AppDialog
           className="backup-complete-dialog"
           title="バックアップしました"
-          message="記録をJSONファイルとして保存しました"
+          message="記録をJSONファイルで保存しました"
           confirmText="OK"
           onConfirm={() => setDialog(null)}
         />

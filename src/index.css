@@ -99,6 +99,27 @@
 /* Skill Card */
 
 /* Footer Nav */
+.footer-nav{padding:2px}
+
+/* ==============================
+   HOME
+   手動でFigma寄せするための調整エリア
+================================= */
+.adj-progress-bar {
+  width: 200px;
+}
+.adj-progress-point{
+  line-height: 1;
+  padding: 4px 6px;
+}
+.adj-progress-point-arrow{
+  margin-top: -2px;
+}
+.skill-grade{
+  position: absolute;
+  bottom: -14px;
+  right: 0;
+}
 
 /* ==============================
    Skill Detail Modal
@@ -119,7 +140,21 @@
    Check Password Page
    手動でFigma寄せするための調整エリア
 ================================= */
-
+.check-hero{
+  max-width: 240px;
+  margin:0 auto;
+}
+.adj-password-input{
+  aspect-ratio: 4/3;
+}
+.check-header-bar{
+  position:relative;
+}
+.check-title{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
 /* ==============================
    Check List Page
    手動でFigma寄せするための調整エリア

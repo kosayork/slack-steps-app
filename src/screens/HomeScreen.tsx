@@ -14,6 +14,12 @@ import type { PendingClear } from '../App';
 
 type Tab = 'Start' | 'Beginner' | 'Advanced';
 
+const SPEC_DISPLAY_BY_TAB: Record<Tab, { label: string; name: string }> = {
+  Start: { label: 'SPEC', name: 'ラック' },
+  Beginner: { label: 'SPEC', name: '低いライン' },
+  Advanced: { label: 'SPEC', name: '高いライン' },
+};
+
 interface Profile {
   nickname: string;
   avatarUrl: string;
@@ -59,22 +65,22 @@ function ProgressBar({ cleared, total }: { cleared: number; total: number }) {
   return (
     <div className="progress-area flex items-center gap-2 pt-7">
       <img src={trendIcon} alt="trend" className="progress-trend-icon w-5 h-5 flex-shrink-0" />
-      <span className="progress-number font-jost text-sm text-text-secondary leading-none">0</span>
+      <span className="progress-number font-jost text-sm text-text-primary leading-none">0</span>
       <div className="relative flex-1 mx-1">
         <div
           className="progress-marker absolute bottom-full -translate-x-1/2 flex flex-col items-center mb-1"
           style={{ left: `${pct}%` }}
         >
-          <div className="bg-black text-white font-jost font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center">
+          <div className="adj-progress-point bg-black text-white font-jost font-bold text-xs rounded-full flex items-center justify-center">
             {cleared}
           </div>
-          <div className="w-2 h-1.5 bg-black" style={{ clipPath: 'polygon(50% 100%, 0% 0%, 100% 0%)' }} />
+          <div className="adj-progress-point-arrow w-2 h-1.5 bg-black" style={{ clipPath: 'polygon(50% 100%, 0% 0%, 100% 0%)' }} />
         </div>
         <div className="progress-track h-1.5 bg-gray-200 rounded-full">
           <div className="progress-fill h-full bg-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
-      <span className="progress-number font-jost text-sm text-text-secondary leading-none">{total}</span>
+      <span className="progress-number font-jost text-sm text-text-primary leading-none">{total}</span>
     </div>
   );
 }
@@ -139,7 +145,7 @@ function CompleteModal({ rank, onClose }: { rank: Rank; onClose: () => void }) {
                 src={imgUrl}
                 alt={`${config.label} complete`}
                 className="complete-modal-image object-contain"
-                style={{ height: '480px', width: 'auto', maxWidth: '100%' }}
+                style={{ height: '440px', width: 'auto', maxWidth: '100%' }}
               />
             ) : (
               <div className="flex flex-col items-center gap-2 py-16">
@@ -212,6 +218,7 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
   const checkUnlocked = (tab: Tab) => isRankUnlocked(tab, clearedIds);
 
   const avatarUrl = getImageUrl('default-user.webp');
+  const specDisplay = SPEC_DISPLAY_BY_TAB[activeTab];
 
   const handleDetailOpen = (technique: Technique) => {
     const enriched = { ...technique, cleared: clearedIds.includes(technique.id) };
@@ -242,7 +249,7 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
             </div>
             <div className="profile-info">
               <p className="profile-name font-jost font-normal text-xl text-text-primary mb-2">
-                {profile.nickname || 'Kosayork'}
+                {profile.nickname || 'SLACKER'}
               </p>
               <div className="profile-progress flex items-center gap-3">
                 <div className="progress-badge progress-badge-bgn flex items-center gap-1.5">
@@ -266,10 +273,10 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
 
       <div className="spec-progress-row flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="spec-label font-jost font-bold text-base text-text-primary">SPEC</span>
-          <span className="spec-name font-jp text-sm text-text-secondary">ラック</span>
+          <span className="spec-label font-jost font-bold text-base text-text-primary">{specDisplay.label}</span>
+          <span className="spec-name font-jp text-sm text-text-primary">{specDisplay.name}</span>
         </div>
-        <div className="flex-1 ml-6">
+        <div className="ml-6 adj-progress-bar">
           <ProgressBar cleared={clearedCount} total={totalCount} />
         </div>
       </div>

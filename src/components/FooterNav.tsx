@@ -17,7 +17,7 @@ const navItems: { key: Screen; icon: string; alt: string; iconClass: string }[] 
 
 export function FooterNav({ currentScreen, onNavigate }: FooterNavProps) {
   return (
-    <nav className="footer-nav fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-sm bg-black rounded-full px-3 py-3 flex items-center justify-between card-shadow z-50">
+    <nav className="footer-nav fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-sm bg-black rounded-full flex items-center justify-between card-shadow z-50">
       {navItems.map(({ key, icon, alt, iconClass }) => {
         const isActive = currentScreen === key;
         return (

@@ -53,7 +53,7 @@ export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
             {section.body.map((para, j) => (
               <p
                 key={j}
-                className={`privacy-section-body font-jp text-sm text-text-secondary leading-relaxed${j > 0 ? ' mt-3' : ''}`}
+                className={`privacy-section-body font-jp text-sm text-text-primary leading-relaxed${j > 0 ? ' mt-3' : ''}`}
               >
                 {para}
               </p>

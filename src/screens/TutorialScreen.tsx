@@ -92,7 +92,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   return (
     <div className={`${screenClass} flex flex-col min-h-screen bg-background`}>
       {/* Logo */}
-      <div className="tutorial-logo flex justify-center pt-10 pb-4 px-6">
+      <div className="tutorial-logo flex justify-center pt-10 pb-10 px-6">
         {logoUrl ? (
           <img src={logoUrl} alt="SLACK STEPS" style={{ width: '113px' }} />
         ) : (
@@ -103,12 +103,12 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
       {/* Animated content */}
       <div className={`${contentClass} flex-1 flex flex-col px-6`}>
         {/* Step heading */}
-        <div className="tutorial-step-heading flex items-center gap-3 mb-4">
+        <div className="tutorial-step-heading flex items-center justify-center gap-3 mb-4">
           {stepSvgUrl ? (
             <img src={stepSvgUrl} alt={`STEP ${currentIndex + 1}`} className="tutorial-step-label h-10 flex-shrink-0" />
           ) : (
             <div className="flex flex-col items-center leading-none flex-shrink-0">
-              <span className="tutorial-step-label font-jost font-bold text-[10px] text-text-secondary tracking-widest uppercase">STEP</span>
+              <span className="tutorial-step-label font-jost font-bold text-[10px] text-text-primary tracking-widest uppercase">STEP</span>
               <span className="tutorial-step-number font-jost font-bold text-3xl text-text-primary leading-none">{currentIndex + 1}</span>
             </div>
           )}
@@ -138,13 +138,13 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         <p className="tutorial-lead font-jp font-bold text-base text-text-primary mb-2">
           {step.lead}
         </p>
-        <p className="tutorial-body font-jp text-sm text-text-secondary leading-relaxed">
+        <p className="tutorial-body font-jp text-sm text-text-primary leading-relaxed">
           {step.body}
         </p>
       </div>
 
       {/* Dots and button — outside animated area so they don't flicker */}
-      <div className="flex flex-col px-6 pb-8 pt-4">
+      <div className="flex flex-col px-6 pb-20 pt-4">
         <div className="tutorial-dots flex justify-center gap-2 mb-6">
           {tutorialSteps.map((_, i) => (
             <span
@@ -157,7 +157,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         <button
           onClick={handleNext}
           disabled={isAnimating}
-          className={`${isLast ? 'tutorial-home-button' : 'tutorial-next-button'} w-full py-4 rounded-full bg-black text-white font-jost font-bold text-base tracking-widest disabled:opacity-70`}
+          className={`${isLast ? 'tutorial-home-button' : 'tutorial-next-button'} w-56 block mx-auto py-4 rounded-full bg-black text-white font-jost font-bold text-base tracking-widest disabled:opacity-70`}
         >
           {isLast ? 'HOMEへ' : 'つぎへ'}
         </button>

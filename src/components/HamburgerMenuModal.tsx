@@ -27,9 +27,9 @@ export function HamburgerMenuModal({ onClose, onSelectItem }: HamburgerMenuModal
           <div className="menu-modal-content px-6 pt-8 pb-2">
             <ul className="menu-list">
               {menuItems.map((item) => (
-                <li key={item.key} className="menu-item border-b border-gray-100 last:border-none">
+                <li key={item.key} className="menu-item border-gray-100">
                   <button
-                    className="menu-item-button w-full text-left font-jp font-bold text-lg text-text-primary py-5"
+                    className="menu-item-button w-full text-left font-jp font-bold text-lg text-text-primary py-3"
                     onClick={() => {
                       console.log('menu:', item.key);
                       onSelectItem(item.key);

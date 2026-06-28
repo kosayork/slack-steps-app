@@ -9,9 +9,9 @@ interface TechniqueDetailModalProps {
 }
 
 const rankBadgeConfig: Record<string, { label: string; className: string }> = {
-  Start:    { label: 'Start',    className: 'modal-rank-badge-start bg-gray-100 text-gray-600' },
-  Beginner: { label: 'BEGINNER', className: 'modal-rank-badge-beginner bg-green-100 text-green-700' },
-  Advanced: { label: 'ADVANCED', className: 'modal-rank-badge-advanced bg-purple-100 text-purple-700' },
+  Start:    { label: 'START',    className: 'modal-rank-badge-start bg-blue-400 text-text-primary' },
+  Beginner: { label: 'BEGINNER', className: 'modal-rank-badge-beginner bg-green-400 text-text-primary' },
+  Advanced: { label: 'ADVANCED', className: 'modal-rank-badge-advanced bg-purple-400 text-text-primary' },
 };
 
 export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModalProps) {
@@ -42,7 +42,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
           </div>
 
           {/* Title row: thumb + grade + name */}
-          <div className="modal-title-row flex items-center gap-3 px-5 pb-4">
+          <div className="modal-title-row flex justify-center items-center gap-3 px-5 pb-4">
             <div className="modal-skill-thumb w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
               {showImage ? (
                 <img
@@ -56,7 +56,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
               )}
             </div>
             <div className="modal-grade flex items-baseline gap-1">
-              <span className="modal-grade-number grade-number text-5xl text-text-primary leading-none">
+              <span className="modal-grade-number text-3xl font-bold text-text-primary leading-none">
                 {technique.gradeNumber}
               </span>
               <span className="modal-grade-label font-jp text-base text-text-primary">級</span>
@@ -95,7 +95,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
 
           {/* Point */}
           <div className="modal-point px-5 pt-4 pb-2">
-            <p className="modal-point-label font-jost font-bold text-sm tracking-widest text-text-secondary mb-2">
+            <p className="modal-point-label font-jost font-bold text-sm tracking-widest text-text-primary mb-1">
               POINT
             </p>
             <p className="modal-point-text font-jp text-base text-text-primary leading-relaxed">

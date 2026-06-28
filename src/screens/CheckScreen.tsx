@@ -66,7 +66,7 @@ function CheckHeader({ onBack }: { onBack: () => void }) {
       >
         <ChevronLeft size={20} className="text-text-primary" />
       </button>
-      <div className="flex items-center gap-2">
+      <div className="check-title flex items-center gap-2">
         <div className="check-header-icon w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
           {thumbUrl ? (
             <img src={thumbUrl} alt="instructor" className="w-full h-full object-cover" />
@@ -85,9 +85,9 @@ function CheckHeader({ onBack }: { onBack: () => void }) {
 // ---- approval QR modal ----
 
 const RANK_BADGE_CLASS: Record<Rank, string> = {
-  Start: 'approval-rank-badge-start bg-green-100 text-green-800',
-  Beginner: 'approval-rank-badge-beginner bg-blue-100 text-blue-800',
-  Advanced: 'approval-rank-badge-advanced bg-purple-200 text-purple-900',
+  Start: 'approval-rank-badge-start bg-blue-400 text-primary',
+  Beginner: 'approval-rank-badge-beginner bg-green-400 text-primary',
+  Advanced: 'approval-rank-badge-advanced bg-purple-400 text-primary',
 };
 
 const RANK_LABEL: Record<Rank, string> = {
@@ -204,7 +204,7 @@ function SkillThumb({ filename }: { filename: string }) {
 function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) => void }) {
   return (
     <button
-      className="check-skill-item w-full bg-card rounded-3xl px-4 py-3 flex items-center gap-4 text-left active:opacity-70 transition-opacity"
+      className="check-skill-item w-full bg-card rounded-2xl px-2 py-2 flex items-center gap-4 text-left active:opacity-70 transition-opacity"
       onClick={() => onTap(skill)}
     >
       <SkillThumb filename={skill.thumbnail} />
@@ -212,9 +212,9 @@ function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) =
         <span className="check-skill-grade-number font-jost font-bold text-3xl text-text-primary leading-none">
           {skill.gradeNumber}
         </span>
-        <span className="check-skill-grade-label font-jp text-sm text-text-secondary mb-0.5">級</span>
+        <span className="check-skill-grade-label font-jp text-sm text-text-primary mb-0.5">級</span>
       </div>
-      <span className="check-skill-name font-jp text-base text-text-primary">{skill.name}</span>
+      <span className="check-skill-name font-jp font-bold text-base text-text-primary">{skill.name}</span>
     </button>
   );
 }
@@ -258,14 +258,14 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
           return (
             <button
               key={rank}
-              className={`check-rank-tab relative flex-1 py-3 text-sm font-jost font-bold tracking-wider transition-colors ${
+              className={`check-rank-tab relative text-base flex-1 py-3 font-jost font-bold tracking-wider transition-colors ${
                 isActive ? 'check-rank-tab-active text-text-primary' : 'text-text-secondary'
               }`}
               onClick={() => setActiveRank(rank)}
             >
               {label}
               <span
-                className={`check-rank-tab-line absolute bottom-0 left-0 right-0 h-0.5 transition-opacity ${
+                className={`check-rank-tab-line text-base absolute bottom-0 left-0 right-0 h-0.5 transition-opacity ${
                   isActive ? 'check-rank-tab-line-active bg-black opacity-100' : 'opacity-0'
                 }`}
               />
@@ -377,7 +377,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
       <CheckHeader onBack={onBack} />
 
       <div className="flex-1 overflow-y-auto pb-12">
-        <div className="check-hero flex justify-center px-6 pt-6 pb-4">
+        <div className="check-hero flex justify-center pt-10 pb-4">
           {mainUrl ? (
             <img src={mainUrl} alt="Instructor Mode" className="check-hero-image w-full max-w-xs object-contain" />
           ) : (
@@ -386,7 +386,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
         </div>
 
         <div className="check-auth-section px-6">
-          <p className="check-auth-title font-jp text-sm text-text-secondary mb-4">インストラクター認証</p>
+          <p className="check-auth-title font-jp font-bold text-sm text-text-primary mb-2">PASS CODE</p>
 
           <div className="check-pin-boxes flex gap-3 mb-2 cursor-text" onClick={focusInput}>
             {[0, 1, 2, 3].map((i) => {
@@ -396,7 +396,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
                 <div
                   key={i}
                   className={[
-                    'check-pin-box flex-1 aspect-square bg-card rounded-2xl flex items-center justify-center transition-all',
+                    'check-pin-box flex-1 adj-password-input bg-card rounded-2xl flex items-center justify-center transition-all',
                     isFilled ? 'check-pin-box-filled shadow-md' : 'shadow-sm',
                     isActive ? 'check-pin-box-active ring-2 ring-accent bg-white' : '',
                   ].join(' ')}
@@ -429,7 +429,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
           <button
             onClick={handleEnter}
             disabled={pin.length !== 4}
-            className={`check-enter-button w-full py-4 rounded-full font-jost font-bold text-sm tracking-widest mt-4 transition-opacity ${
+            className={`check-enter-button w-56 mx-auto block py-4 rounded-full font-jost font-bold text-sm tracking-widest mt-8 transition-opacity ${
               pin.length === 4
                 ? 'bg-black text-white'
                 : 'check-enter-button-disabled bg-black text-white opacity-30 cursor-not-allowed'

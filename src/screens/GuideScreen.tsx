@@ -70,9 +70,9 @@ export function GuideScreen({ onBack }: GuideScreenProps) {
             return (
               <div key={step.step} className="guide-step">
                 {/* Step heading */}
-                <div className="guide-step-heading flex items-center gap-3 mb-5">
-                  <div className="flex flex-col items-center leading-none flex-shrink-0">
-                    <span className="guide-step-label font-jost font-bold text-[10px] text-text-secondary tracking-widest uppercase">
+                <div className="guide-step-heading flex items-center justify-center gap-3 mb-5">
+                  <div className="flex flex-col items-center justify-center leading-none flex-shrink-0">
+                    <span className="guide-step-label font-jost font-bold text-[10px] text-text-primary tracking-widest uppercase">
                       STEP
                     </span>
                     <span className="guide-step-number font-jost font-bold text-3xl text-text-primary leading-none">
@@ -105,14 +105,14 @@ export function GuideScreen({ onBack }: GuideScreenProps) {
                 <p className="guide-step-lead font-jp font-bold text-base text-text-primary mb-2">
                   {step.lead}
                 </p>
-                <p className="guide-step-body font-jp text-sm text-text-secondary leading-relaxed">
+                <p className="guide-step-body font-jp text-sm text-text-primary leading-relaxed">
                   {step.body}
                 </p>
 
                 {/* Divider between steps */}
                 {!isLast && (
                   <div className="guide-step-divider flex justify-center my-8">
-                    <div className="w-px h-12 bg-gray-300" />
+                    <div className="w-px h-12 bg-gray-500" />
                   </div>
                 )}
               </div>
