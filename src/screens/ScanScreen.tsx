@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type { IScannerControls } from '@zxing/browser';
-import { Camera, ChevronLeft } from 'lucide-react';
 
 interface ScanScreenProps {
   onBack: () => void;
@@ -69,17 +68,7 @@ export function ScanScreen({ onBack, onScan }: ScanScreenProps) {
   return (
     <div className="scan-page min-h-screen bg-background flex flex-col pb-28">
       <div className="scan-header flex items-center px-4 py-4 bg-background border-b border-gray-200 gap-4">
-        <button
-          onClick={onBack}
-          className="scan-back-button w-10 h-10 bg-card rounded-full flex items-center justify-center card-shadow flex-shrink-0"
-          aria-label="HOMEへ戻る"
-        >
-          <ChevronLeft size={20} className="text-text-primary" />
-        </button>
         <div className="flex items-center gap-2">
-          <div className="scan-header-icon w-10 h-10 rounded-full bg-black flex items-center justify-center flex-shrink-0">
-            <Camera size={20} className="text-white" />
-          </div>
           <span className="scan-title font-jost font-bold text-base text-text-primary tracking-widest">
             SCAN
           </span>

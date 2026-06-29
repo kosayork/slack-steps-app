@@ -242,7 +242,6 @@ function App() {
       case 'check':
         return (
           <CheckScreen
-            onBack={goHome}
             clearedIds={clearedIds}
             onClearSkills={handleClearSkills}
             onResetCleared={handleResetCleared}

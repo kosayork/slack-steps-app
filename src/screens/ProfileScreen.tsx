@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Camera, ChevronLeft } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { beginnerTechniques, advancedTechniques } from '../data/techniques';
 import { getImageUrl } from '../utils/images';
 
@@ -210,12 +210,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
 
       {/* Header bar */}
       <div className="profile-header-bar flex items-center justify-between px-4 py-4 bg-background border-b border-gray-200">
-        <button
-          onClick={onBack}
-          className="profile-back-button w-10 h-10 bg-card rounded-full flex items-center justify-center card-shadow"
-        >
-          <ChevronLeft size={20} className="text-text-primary" />
-        </button>
+        <div className="w-10" aria-hidden="true" />
         <span className="profile-title font-jost font-bold text-base text-text-primary tracking-widest">
           PROFILE
         </span>

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { getImageUrl } from '../utils/images';
 import { getTechniquesByRank, startTechniques, beginnerTechniques, advancedTechniques } from '../data/techniques';
@@ -50,7 +49,6 @@ function isRankComplete(rank: Rank, clearedIds: string[]): boolean {
 }
 
 interface CheckScreenProps {
-  onBack: () => void;
   clearedIds: string[];
   onClearSkills: (newIds: string[], pending: PendingClear) => void;
   onResetCleared: () => void;
@@ -58,16 +56,10 @@ interface CheckScreenProps {
 
 // ---- shared header ----
 
-function CheckHeader({ onBack }: { onBack: () => void }) {
+function CheckHeader() {
   const thumbUrl = getImageUrl('instructor-thumb.webp');
   return (
     <div className="check-header-bar flex items-center px-4 py-4 bg-background border-b border-gray-200 gap-4">
-      <button
-        onClick={onBack}
-        className="check-back-button w-10 h-10 bg-card rounded-full flex items-center justify-center card-shadow flex-shrink-0"
-      >
-        <ChevronLeft size={20} className="text-text-primary" />
-      </button>
       <div className="check-title flex items-center gap-2">
         <div className="check-header-icon w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
           {thumbUrl ? (
@@ -338,7 +330,7 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
 
 // ---- main export ----
 
-export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared }: CheckScreenProps) {
+export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: CheckScreenProps) {
   const [isAuthorized, setIsAuthorized] = useState(() => readAuthRecord());
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -355,7 +347,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
   if (isAuthorized) {
     return (
       <div className="check-page flex flex-col min-h-screen bg-background">
-        <CheckHeader onBack={onBack} />
+        <CheckHeader />
         <CheckList
           clearedIds={clearedIds}
           onClearSkills={onClearSkills}
@@ -386,7 +378,7 @@ export function CheckScreen({ onBack, clearedIds, onClearSkills, onResetCleared 
 
   return (
     <div className="check-page flex flex-col min-h-screen bg-background">
-      <CheckHeader onBack={onBack} />
+      <CheckHeader />
 
       <div className="flex-1 overflow-y-auto pb-12">
         <div className="check-hero flex justify-center pt-10 pb-4">
