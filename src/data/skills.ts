@@ -152,8 +152,8 @@ export const skills = [
     grade: '3級',
     name: 'フットプラント',
     description: 'ビギナーランクの技3の説明文',
-    point: 'ビギナー技3のポイントとコツです',
-    tips: ['置く足の位置を決める', '上体を急に倒さない', '戻る時もラインを見る'],
+    point: 'しゃがんだ状態で前足は伸ばし、後ろの足はラインにかけよう',
+    tips: ['胸を張る', '体重は後ろ足に乗せる', '目線は前をみる'],
     youtubeId: 'nox7HdPG7YI',
     thumbnail: 'beginner-thumb-03.webp',
     qrCode: 'J5rN2vX9cB6s',
@@ -217,7 +217,6 @@ export function getYouTubeEmbedUrl(youtubeId?: string): string {
   if (!youtubeId) return '';
   const params = new URLSearchParams({
     controls: '1',
-    fs: '0',
     iv_load_policy: '3',
     rel: '0',
     loop: '1',

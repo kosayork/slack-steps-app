@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FooterNav } from './components/FooterNav';
+import type { FooterScreen } from './components/FooterNav';
 import { HomeScreen } from './screens/HomeScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { CheckScreen } from './screens/CheckScreen';
+import { ScanScreen } from './screens/ScanScreen';
 import { GuideScreen } from './screens/GuideScreen';
 import { PrivacyScreen } from './screens/PrivacyScreen';
 import { AboutScreen } from './screens/AboutScreen';
@@ -14,7 +16,7 @@ import { allTechniques } from './data/techniques';
 import { getSkillIdFromQrCode, QR_CLEAR_PARAM } from './data/qrCodes';
 
 type AppPhase = 'splash' | 'tutorial' | 'main';
-type MainScreen = 'home' | 'check' | 'profile' | 'guide' | 'privacy' | 'about' | 'clearedUsers';
+type MainScreen = FooterScreen | 'guide' | 'privacy' | 'about' | 'clearedUsers';
 
 interface Profile {
   nickname: string;
@@ -63,6 +65,28 @@ function isRankComplete(rank: Rank, clearedSkillIds: string[]): boolean {
   return rankTechniques.length > 0 && rankTechniques.every((technique) => clearedSkillIds.includes(technique.id));
 }
 
+function getQrCodeFromDecodedText(decodedText: string): string | null {
+  const trimmedText = decodedText.trim();
+  if (!trimmedText) return null;
+
+  if (trimmedText.startsWith('http://') || trimmedText.startsWith('https://')) {
+    try {
+      const url = new URL(trimmedText);
+      return url.searchParams.get(QR_CLEAR_PARAM);
+    } catch {
+      return null;
+    }
+  }
+
+  return trimmedText;
+}
+
+const FOOTER_SCREENS: FooterScreen[] = ['home', 'scan', 'check', 'profile'];
+
+function isFooterScreen(screen: MainScreen): screen is FooterScreen {
+  return FOOTER_SCREENS.includes(screen as FooterScreen);
+}
+
 function App() {
   const qrHandledRef = useRef(false);
   const [phase, setPhase] = useState<AppPhase>('splash');
@@ -84,12 +108,12 @@ function App() {
 
   const goHome = () => setCurrentScreen('home');
 
-  const showMainHome = () => {
+  const showMainHome = useCallback(() => {
     setCurrentScreen('home');
     setPhase('main');
     setHomeFadeIn(false);
     setTimeout(() => setHomeFadeIn(true), 16);
-  };
+  }, []);
 
   const handleClearSkills = (newIds: string[], pending: PendingClear) => {
     const merged = Array.from(new Set([...clearedIds, ...newIds]));
@@ -102,27 +126,17 @@ function App() {
     setCurrentScreen('home');
   };
 
-  useEffect(() => {
-    if (qrHandledRef.current) return;
-    qrHandledRef.current = true;
+  const showNoticeOnHome = useCallback((title: string, message: string, initialTab: Rank = 'Start') => {
+    setHomeInitialTab(initialTab);
+    setPendingClear({ type: 'notice', title, message });
+    showMainHome();
+  }, [showMainHome]);
 
-    const params = new URLSearchParams(window.location.search);
-    const qrCode = params.get(QR_CLEAR_PARAM);
-    if (!qrCode) return;
+  const handleSkillClear = useCallback((skillId: string) => {
+    const technique = getTechniqueById(skillId);
 
-    removeQrParamFromUrl();
-
-    const skillId = getSkillIdFromQrCode(qrCode);
-    const technique = skillId ? getTechniqueById(skillId) : null;
-
-    if (!skillId || !technique) {
-      setPendingClear({
-        type: 'notice',
-        title: 'QRコードを読み取れませんでした',
-        message: 'このQRコードは無効です',
-      });
-      setHomeInitialTab('Start');
-      showMainHome();
+    if (!technique) {
+      showNoticeOnHome('QRコードを読み取れませんでした', 'このQRコードは無効です');
       return;
     }
 
@@ -131,12 +145,7 @@ function App() {
 
     if (currentClearedIds.includes(skillId)) {
       setClearedIds(currentClearedIds);
-      setPendingClear({
-        type: 'notice',
-        title: 'すでにクリア済みです',
-        message: 'この技はすでに記録されています',
-      });
-      showMainHome();
+      showNoticeOnHome('すでにクリア済みです', 'この技はすでに記録されています', technique.rank);
       return;
     }
 
@@ -149,7 +158,38 @@ function App() {
         : { type: 'nice', rank: technique.rank }
     );
     showMainHome();
-  }, []);
+  }, [showMainHome, showNoticeOnHome]);
+
+  const handleQrCodeClear = useCallback((qrCode: string | null) => {
+    if (!qrCode) {
+      showNoticeOnHome('QRコードを読み取れませんでした', 'このQRコードは無効です');
+      return;
+    }
+
+    const skillId = getSkillIdFromQrCode(qrCode);
+    if (!skillId) {
+      showNoticeOnHome('QRコードを読み取れませんでした', 'このQRコードは無効です');
+      return;
+    }
+
+    handleSkillClear(skillId);
+  }, [handleSkillClear, showNoticeOnHome]);
+
+  const handleScanDecodedText = (decodedText: string) => {
+    handleQrCodeClear(getQrCodeFromDecodedText(decodedText));
+  };
+
+  useEffect(() => {
+    if (qrHandledRef.current) return;
+    qrHandledRef.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const qrCode = params.get(QR_CLEAR_PARAM);
+    if (!qrCode) return;
+
+    removeQrParamFromUrl();
+    handleQrCodeClear(qrCode);
+  }, [handleQrCodeClear]);
 
   const handleResetCleared = () => {
     localStorage.removeItem(STORAGE_KEY_CLEARED);
@@ -208,6 +248,13 @@ function App() {
             onResetCleared={handleResetCleared}
           />
         );
+      case 'scan':
+        return (
+          <ScanScreen
+            onBack={goHome}
+            onScan={handleScanDecodedText}
+          />
+        );
       case 'profile':
         return (
           <ProfileScreen
@@ -246,7 +293,7 @@ function App() {
     }
   };
 
-  const showFooter = currentScreen === 'home';
+  const showFooter = isFooterScreen(currentScreen);
 
   return (
     <div className="app-shell min-h-screen bg-background">
