@@ -199,6 +199,35 @@ function UnlockDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ---- NoticeDialog ----
+
+function NoticeDialog({ title, message, onClose }: { title: string; message: string; onClose: () => void }) {
+  return (
+    <div
+      className="notice-dialog-overlay fixed inset-0 z-[80] flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+    >
+      <div
+        className="notice-dialog bg-white rounded-3xl px-8 py-10 flex flex-col items-center gap-4 shadow-xl mx-6 w-full max-w-xs"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="notice-dialog-title font-jost font-bold text-xl text-text-primary tracking-wider text-center">
+          {title}
+        </p>
+        <p className="notice-dialog-message font-jp text-sm text-text-primary text-center leading-relaxed">
+          {message}
+        </p>
+        <button
+          className="notice-dialog-button font-jost font-bold text-sm tracking-widest px-12 py-3.5 rounded-full bg-black text-white mt-2"
+          onClick={onClose}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ---- HomeScreen ----
 
 export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, initialTab, onGuide, onPrivacy, onAbout, onClearedUsers }: HomeScreenProps) {
@@ -226,7 +255,7 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
   };
 
   const handleCompleteClose = () => {
-    if (pendingClear?.rank === 'Start') {
+    if (pendingClear?.type === 'complete' && pendingClear.rank === 'Start') {
       setPendingUnlockDialog(true);
     }
     onClearPending();
@@ -318,6 +347,11 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
       {/* CompleteModal */}
       {pendingClear?.type === 'complete' && (
         <CompleteModal rank={pendingClear.rank} onClose={handleCompleteClose} />
+      )}
+
+      {/* NoticeDialog */}
+      {pendingClear?.type === 'notice' && (
+        <NoticeDialog title={pendingClear.title} message={pendingClear.message} onClose={onClearPending} />
       )}
 
       {/* UnlockDialog — shown after START COMPLETE is closed */}
