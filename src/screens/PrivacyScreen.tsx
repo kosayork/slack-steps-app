@@ -35,6 +35,14 @@ const privacySections: { title: string | null; body: string[] }[] = [
       "カメラ・写真ライブラリへのアクセス：プロフィール画像の変更機能、および先生のQRコードを読み取る検定機能のためにのみ使用します。",
     ],
   },
+  {
+    title: "5. シークレットモード・プライベートブラウズについて",
+    body: [
+      "このアプリは端末のブラウザに記録を保存します。",
+      "シークレットモードやプライベートブラウズでは、記録が正しく保存されない場合があります。",
+      "通常のブラウザでご利用ください。",
+    ],
+  },
 ];
 
 export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
