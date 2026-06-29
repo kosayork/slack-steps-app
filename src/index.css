@@ -213,6 +213,13 @@
 /* --- Tutorial screen leave fade --- */
 .tutorial-screen {
   transition: opacity 0.38s ease;
+}
+
+.tutorial-screen-intro-hidden {
+  opacity: 0;
+}
+
+.tutorial-screen-intro-visible {
   opacity: 1;
 }
 

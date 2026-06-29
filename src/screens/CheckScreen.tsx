@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { getImageUrl } from '../utils/images';
 import { getTechniquesByRank, startTechniques, beginnerTechniques, advancedTechniques } from '../data/techniques';
+import { buildQrClearUrl, getQrCodeFromSkillId } from '../data/qrCodes';
 import { Technique, Rank } from '../types/technique';
 import type { PendingClear } from '../App';
 
@@ -105,7 +107,10 @@ interface ApprovalQRModalProps {
 
 function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRModalProps) {
   const thumbUrl = getImageUrl(skill.thumbnail);
-  const qrUrl = getImageUrl(skill.qr);
+  const qrCode = getQrCodeFromSkillId(skill.id);
+  const qrValue = qrCode
+    ? buildQrClearUrl(`${window.location.origin}${import.meta.env.BASE_URL}`, qrCode)
+    : '';
   const alreadyCleared = clearedIds.includes(skill.id);
 
   return (
@@ -146,8 +151,15 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
             </div>
 
             <div className="approval-qr-image-wrap w-full flex justify-center py-2">
-              {qrUrl ? (
-                <img src={qrUrl} alt={`${skill.grade} ${skill.name} QR`} className="approval-qr-image w-56 h-56 object-contain" />
+              {qrValue ? (
+                <QRCodeSVG
+                  value={qrValue}
+                  size={224}
+                  level="M"
+                  marginSize={2}
+                  className="approval-qr-image w-56 h-56"
+                  title={`${skill.grade} ${skill.name} QR`}
+                />
               ) : (
                 <div className="approval-qr-placeholder w-56 h-56 bg-gray-100 rounded-2xl flex items-center justify-center">
                   <span className="font-jp text-sm text-text-secondary">QR準備中</span>

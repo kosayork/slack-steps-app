@@ -8,8 +8,10 @@ export interface Technique {
   name: string;
   description: string;
   point: string;
+  tips: string[];
+  youtubeId: string;
   thumbnail: string;
-  qr: string;
+  qrCode: string;
   videoUrl: string;
   cleared: boolean;
 }

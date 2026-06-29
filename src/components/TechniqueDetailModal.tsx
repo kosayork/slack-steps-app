@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Technique } from '../types/technique';
 import { getImageUrl } from '../utils/images';
-import { Play } from 'lucide-react';
+import { getYouTubeEmbedUrl } from '../data/skills';
 
 interface TechniqueDetailModalProps {
   technique: Technique;
@@ -19,6 +19,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
   const imageUrl = getImageUrl(technique.thumbnail);
   const showImage = imageUrl && !imgError;
   const badge = rankBadgeConfig[technique.rank] ?? rankBadgeConfig.Start;
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(technique.youtubeId);
 
   return (
     <div
@@ -68,12 +69,14 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
 
           {/* Media — full width, no side padding */}
           <div className="modal-media w-full aspect-video bg-gray-100 relative overflow-hidden">
-            {technique.videoUrl ? (
-              <div className="modal-video-placeholder w-full h-full flex items-center justify-center bg-gray-200">
-                <button className="modal-play-button w-16 h-16 bg-white/80 rounded-full flex items-center justify-center shadow-md">
-                  <Play size={28} className="text-text-primary ml-1" fill="currentColor" />
-                </button>
-              </div>
+            {youtubeEmbedUrl ? (
+              <iframe
+                src={youtubeEmbedUrl}
+                title={technique.name}
+                className="skill-detail-video-frame w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             ) : showImage ? (
               <img
                 src={imageUrl}
@@ -102,6 +105,21 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
               {technique.point}
             </p>
           </div>
+
+          {technique.tips.length > 0 && (
+            <div className="modal-tips px-5 pt-2 pb-2">
+              <p className="modal-tips-label font-jost font-bold text-sm tracking-widest text-text-primary mb-1">
+                TIPS
+              </p>
+              <ul className="modal-tips-list list-disc pl-5">
+                {technique.tips.map((tip) => (
+                  <li key={tip} className="modal-tips-item font-jp text-sm text-text-primary leading-relaxed">
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Close button */}
           <div className="modal-actions flex justify-center px-5 pt-6 pb-10">

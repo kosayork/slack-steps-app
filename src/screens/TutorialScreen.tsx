@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getImageUrl } from '../utils/images';
 
 const STORAGE_KEY_TUTORIAL = 'slackStepsTutorialCompleted';
@@ -48,6 +48,7 @@ interface TutorialScreenProps {
 export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animPhase, setAnimPhase] = useState<AnimPhase>('idle');
+  const [introVisible, setIntroVisible] = useState(false);
 
   const logoUrl = getImageUrl('logo.svg');
   const step = tutorialSteps[currentIndex];
@@ -56,7 +57,16 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const isLast = currentIndex === tutorialSteps.length - 1;
   const isAnimating = animPhase !== 'idle';
 
-  const screenClass = animPhase === 'leaving' ? 'tutorial-screen tutorial-screen-leaving' : 'tutorial-screen';
+  useEffect(() => {
+    const timer = requestAnimationFrame(() => setIntroVisible(true));
+    return () => cancelAnimationFrame(timer);
+  }, []);
+
+  const screenClass = [
+    'tutorial-screen',
+    introVisible ? 'tutorial-screen-intro-visible' : 'tutorial-screen-intro-hidden',
+    animPhase === 'leaving' ? 'tutorial-screen-leaving' : '',
+  ].join(' ');
 
   const handleNext = () => {
     if (isAnimating) return;
