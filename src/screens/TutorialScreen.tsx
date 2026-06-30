@@ -37,6 +37,13 @@ const tutorialSteps = [
     lead: 'カメラで読み取ってレベルアップ！！',
     body: '先生のQRコードを自分のスマホのカメラで読み取れば、検定クリア！どんどんスタンプを集めて、目指せスラックラインマスター！',
   },
+  {
+    stepSvg: 'step04.svg',
+    title: 'ホーム画面に追加しよう！',
+    image: 'guide04.webp',
+    lead: 'いつでもすぐに、SLACK STEPS',
+    body: 'ホーム画面に追加すれば、SLACK STEPSをアプリのように使えます。練習のときは、アイコンからすぐに開いて、技の確認やクリア記録をチェックしよう！',
+  },
 ];
 
 type AnimPhase = 'idle' | 'exit' | 'enter' | 'leaving';
@@ -134,7 +141,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
             <img
               src={imgUrl}
               alt={step.title}
-              className="tutorial-image w-full object-contain"
+              className="tutorial-image w-full object-cover"
               style={{ maxHeight: '260px' }}
             />
           ) : (
@@ -169,7 +176,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
           disabled={isAnimating}
           className={`${isLast ? 'tutorial-home-button' : 'tutorial-next-button'} w-56 block mx-auto py-4 rounded-full bg-black text-white font-jost font-bold text-base tracking-widest disabled:opacity-70`}
         >
-          {isLast ? 'HOMEへ' : 'つぎへ'}
+          {isLast ? 'スタート！' : 'つぎへ'}
         </button>
       </div>
     </div>

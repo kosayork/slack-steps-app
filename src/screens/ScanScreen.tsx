@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { IScannerControls } from '@zxing/browser';
 
 interface ScanScreenProps {
-  onBack: () => void;
   onScan: (decodedText: string) => void;
 }
 
-export function ScanScreen({ onBack, onScan }: ScanScreenProps) {
+export function ScanScreen({ onScan }: ScanScreenProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const hasHandledScanRef = useRef(false);
@@ -68,7 +67,7 @@ export function ScanScreen({ onBack, onScan }: ScanScreenProps) {
   return (
     <div className="scan-page min-h-screen bg-background flex flex-col pb-28">
       <div className="scan-header flex items-center px-4 py-4 bg-background border-b border-gray-200 gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 justify-center">
           <span className="scan-title font-jost font-bold text-base text-text-primary tracking-widest">
             SCAN
           </span>
@@ -77,9 +76,7 @@ export function ScanScreen({ onBack, onScan }: ScanScreenProps) {
 
       <div className="scan-content flex-1 px-5 pt-8 flex flex-col gap-5">
         <div>
-          <h1 className="scan-title font-jost font-bold text-3xl text-text-primary tracking-widest">
-            SCAN
-          </h1>
+
           <p className="scan-description font-jp text-sm text-text-secondary mt-2">
             先生の承認QRを読み取ってください
           </p>
@@ -105,12 +102,6 @@ export function ScanScreen({ onBack, onScan }: ScanScreenProps) {
           </p>
         )}
 
-        <button
-          onClick={onBack}
-          className="scan-home-button font-jost font-bold text-sm tracking-widest px-8 py-3.5 rounded-full bg-black text-white self-center mt-2"
-        >
-          HOME
-        </button>
       </div>
     </div>
   );

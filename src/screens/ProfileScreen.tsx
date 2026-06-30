@@ -217,7 +217,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
         <div className="w-10" />
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-12">
+      <div className="flex-1 overflow-y-auto pb-28">
 
         {/* Avatar */}
         <div className="profile-avatar-section flex justify-center pt-8 pb-6">

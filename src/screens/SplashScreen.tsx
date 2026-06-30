@@ -29,9 +29,9 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
       onTransitionEnd={handleTransitionEnd}
     >
       {logoUrl ? (
-        <img src={logoUrl} alt="SLACK STEPS" className="splash-logo w-40" />
+        <img src={logoUrl} alt="SLACK STEPS" className="splash-logo w-40 -translate-y-20" />
       ) : (
-        <span className="font-jost font-bold text-2xl text-text-primary tracking-widest">SLACK STEPS</span>
+        <span className="font-jost font-bold text-2xl text-text-primary tracking-widest -translate-y-20">SLACK STEPS</span>
       )}
     </div>
   );

@@ -250,7 +250,6 @@ function App() {
       case 'scan':
         return (
           <ScanScreen
-            onBack={goHome}
             onScan={handleScanDecodedText}
           />
         );
