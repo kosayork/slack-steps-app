@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Camera } from 'lucide-react';
 import { beginnerTechniques, advancedTechniques } from '../data/techniques';
 import { getImageUrl } from '../utils/images';
+import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 
 const STORAGE_KEY_NICKNAME = 'slackStepsNickname';
 const STORAGE_KEY_IMAGE = 'slackStepsProfileImage';
@@ -321,7 +322,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
         </div>
 
         {/* Debug: tutorial reset */}
-        {onResetTutorial && (
+        {SHOW_DEBUG_CONTROLS && onResetTutorial && (
           <div className="px-6 mt-6">
             <button
               onClick={onResetTutorial}

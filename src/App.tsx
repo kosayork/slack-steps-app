@@ -296,7 +296,7 @@ function App() {
   return (
     <div className="app-shell min-h-screen bg-background">
       <div className={`app-container max-w-md mx-auto min-h-screen flex flex-col relative page-fade ${homeFadeIn ? 'page-fade-in' : ''}`}>
-        <main className="flex-1 relative">{renderContent()}</main>
+        <main key={currentScreen} className="app-main-transition flex-1 relative">{renderContent()}</main>
         {showFooter && (
           <FooterNav currentScreen={currentScreen} onNavigate={setCurrentScreen} />
         )}

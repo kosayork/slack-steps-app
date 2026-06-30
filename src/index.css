@@ -87,6 +87,20 @@
 ================================= */
 
 /* App Layout */
+.app-main-transition {
+  animation: appMainIn 0.2s ease-out;
+}
+
+@keyframes appMainIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* Profile Header */
 
@@ -104,7 +118,16 @@
 }
 
 /* Footer Nav */
-.footer-nav{padding:2px}
+.footer-nav{
+  padding:2px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.footer-nav-icon {
+  transition: transform 0.2s ease, filter 0.2s ease, color 0.2s ease;
+}
+.footer-nav-item-active .footer-nav-icon {
+  transform: scale(1.04);
+}
 
 /* ==============================
    HOME
@@ -256,4 +279,67 @@
 .tutorial-content-enter {
   opacity: 0;
   transform: translateX(28px);
+}
+
+.tutorial-install-toggle-icon {
+  transition: transform 0.18s ease;
+  line-height: 1;
+}
+
+.tutorial-install-panel {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.24s ease, opacity 0.18s ease;
+}
+
+.tutorial-install-panel-open {
+  max-height: 480px;
+  opacity: 1;
+}
+
+.tutorial-next-button,
+.tutorial-home-button,
+.approval-qr-test-button,
+.approval-qr-close-button,
+.profile-save-button,
+.profile-backup-button,
+.profile-import-button,
+.tutorial-reset-button,
+.check-skill-item {
+  transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.tutorial-next-button:active,
+.tutorial-home-button:active,
+.approval-qr-test-button:active,
+.approval-qr-close-button:active,
+.profile-save-button:active,
+.profile-backup-button:active,
+.profile-import-button:active,
+.tutorial-reset-button:active,
+.check-skill-item:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-main-transition,
+  .tutorial-screen,
+  .tutorial-content,
+  .tutorial-install-panel,
+  .footer-nav,
+  .footer-nav-icon,
+  .skill-card,
+  .tutorial-next-button,
+  .tutorial-home-button,
+  .approval-qr-test-button,
+  .approval-qr-close-button,
+  .profile-save-button,
+  .profile-backup-button,
+  .profile-import-button,
+  .tutorial-reset-button,
+  .check-skill-item {
+    animation: none !important;
+    transition: none !important;
+  }
 }

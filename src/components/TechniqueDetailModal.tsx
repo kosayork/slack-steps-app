@@ -23,7 +23,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
 
   return (
     <div
-      className="modal-overlay fixed inset-0 z-[60] flex items-end justify-center"
+      className="modal-overlay fixed inset-0 z-[90] flex items-end justify-center"
       style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
       onClick={onClose}
     >

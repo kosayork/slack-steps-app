@@ -15,7 +15,7 @@ const menuItems: { key: MenuItemKey; label: string }[] = [
 export function HamburgerMenuModal({ onClose, onSelectItem }: HamburgerMenuModalProps) {
   return (
     <div
-      className="menu-modal-overlay fixed inset-0 z-[60] flex items-end justify-center"
+      className="menu-modal-overlay fixed inset-0 z-[90] flex items-end justify-center"
       style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
       onClick={onClose}
     >

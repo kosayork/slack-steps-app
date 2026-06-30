@@ -32,10 +32,10 @@ const tutorialSteps = [
   },
   {
     stepSvg: 'step03.svg',
-    title: 'スタンプをゲット！',
+    title: 'QRを読み取って、検定クリア',
     image: 'guide03.webp',
-    lead: 'カメラで読み取ってレベルアップ！！',
-    body: '先生のQRコードを自分のスマホのカメラで読み取れば、検定クリア！どんどんスタンプを集めて、目指せスラックラインマスター！',
+    lead: 'SCANで読み取ってレベルアップ！！',
+    body: '先生のQRコードをアプリ内のSCANから読み取れば、検定クリア！目指せスラックラインマスター！',
   },
   {
     stepSvg: 'step04.svg',
@@ -56,12 +56,14 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animPhase, setAnimPhase] = useState<AnimPhase>('idle');
   const [introVisible, setIntroVisible] = useState(false);
+  const [isInstallGuideOpen, setIsInstallGuideOpen] = useState(false);
 
   const logoUrl = getImageUrl('logo.svg');
   const step = tutorialSteps[currentIndex];
   const stepSvgUrl = getImageUrl(step.stepSvg);
   const imgUrl = getImageUrl(step.image);
   const isLast = currentIndex === tutorialSteps.length - 1;
+  const isInstallStep = currentIndex === 3;
   const isAnimating = animPhase !== 'idle';
 
   useEffect(() => {
@@ -90,6 +92,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
     setTimeout(() => {
       // Phase 2: swap content and enter from right
       setCurrentIndex((i) => i + 1);
+      setIsInstallGuideOpen(false);
       setAnimPhase('enter');
 
       setTimeout(() => {
@@ -158,6 +161,56 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         <p className="tutorial-body font-jp text-sm text-text-primary leading-relaxed">
           {step.body}
         </p>
+
+        {isInstallStep && (
+          <div className="tutorial-install-guide mt-5">
+            <button
+              type="button"
+              className="tutorial-install-toggle w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 flex items-center justify-between gap-3 text-left"
+              onClick={() => setIsInstallGuideOpen((open) => !open)}
+              aria-expanded={isInstallGuideOpen}
+            >
+              <span className="font-jp font-bold text-sm text-text-primary">
+                ホーム画面への追加方法を見る
+              </span>
+              <span className={`tutorial-install-toggle-icon font-jost font-bold text-xl text-text-primary ${isInstallGuideOpen ? 'rotate-45' : ''}`}>
+                +
+              </span>
+            </button>
+
+            <div className={`tutorial-install-panel ${isInstallGuideOpen ? 'tutorial-install-panel-open' : ''}`}>
+              <div className="tutorial-install-card bg-white rounded-2xl px-4 py-4 mt-3">
+                <div className="tutorial-install-section">
+                  <p className="tutorial-install-heading font-jp font-bold text-sm text-text-primary mb-2">
+                    iPhoneの場合
+                  </p>
+                  <ol className="tutorial-install-list font-jp text-xs text-text-primary leading-relaxed list-decimal pl-5 space-y-1">
+                    <li>SafariでSLACK STEPSを開く</li>
+                    <li>共有ボタンをタップ</li>
+                    <li>「ホーム画面に追加」を選択</li>
+                    <li>追加されたアイコンから起動</li>
+                  </ol>
+                </div>
+
+                <div className="tutorial-install-section mt-4">
+                  <p className="tutorial-install-heading font-jp font-bold text-sm text-text-primary mb-2">
+                    Androidの場合
+                  </p>
+                  <ol className="tutorial-install-list font-jp text-xs text-text-primary leading-relaxed list-decimal pl-5 space-y-1">
+                    <li>ChromeでSLACK STEPSを開く</li>
+                    <li>メニューをタップ</li>
+                    <li>「アプリをインストール」または「ホーム画面に追加」を選択</li>
+                    <li>追加されたアイコンから起動</li>
+                  </ol>
+                </div>
+
+                <p className="tutorial-install-note font-jp text-[11px] text-text-secondary leading-relaxed mt-4">
+                  ※QRは端末のカメラアプリではなく、SLACK STEPS内のSCANから読み取ってください。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Dots and button — outside animated area so they don't flicker */}

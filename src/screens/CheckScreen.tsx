@@ -5,6 +5,7 @@ import { getTechniquesByRank, startTechniques, beginnerTechniques, advancedTechn
 import { buildQrClearUrl, getQrCodeFromSkillId } from '../data/qrCodes';
 import { Technique, Rank } from '../types/technique';
 import type { PendingClear } from '../App';
+import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 
 const INSTRUCTOR_PIN = '2327';
 const STORAGE_KEY_AUTH = 'slackStepsInstructorAuthorized';
@@ -107,7 +108,7 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
 
   return (
     <div
-      className="approval-qr-overlay fixed inset-0 z-[60] flex items-end justify-center"
+      className="approval-qr-overlay fixed inset-0 z-[90] flex items-end justify-center"
       style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
       onClick={onClose}
     >
@@ -279,7 +280,7 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
       </div>
 
       {/* Skill list */}
-      <div className="check-skill-list flex-1 overflow-y-auto px-4 py-4 pb-4">
+      <div className="check-skill-list flex-1 overflow-y-auto px-4 py-4 pb-32">
         {skills.length === 0 ? (
           <p className="check-empty-state font-jp text-text-secondary text-sm text-center py-10">
             このランクの承認リストは準備中です
@@ -292,27 +293,28 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
           </div>
         )}
 
-        {/* Debug area */}
-        <div className="text-center mt-8 flex flex-col gap-3 items-center">
-          <button
-            className="debug-complete-rank-button font-jp text-xs text-blue-500 underline"
-            onClick={handleDebugCompleteRank}
-          >
-            このランクを全クリアにする
-          </button>
-          <button
-            className="clear-state-reset-button font-jp text-xs text-text-secondary underline"
-            onClick={onResetCleared}
-          >
-            クリア状態をリセット
-          </button>
-          <button
-            className="check-auth-reset-button font-jp text-xs text-text-secondary underline"
-            onClick={onResetAuth}
-          >
-            認証をリセット
-          </button>
-        </div>
+        {SHOW_DEBUG_CONTROLS && (
+          <div className="text-center mt-8 flex flex-col gap-3 items-center">
+            <button
+              className="debug-complete-rank-button font-jp text-xs text-blue-500 underline"
+              onClick={handleDebugCompleteRank}
+            >
+              このランクを全クリアにする
+            </button>
+            <button
+              className="clear-state-reset-button font-jp text-xs text-text-secondary underline"
+              onClick={onResetCleared}
+            >
+              クリア状態をリセット
+            </button>
+            <button
+              className="check-auth-reset-button font-jp text-xs text-text-secondary underline"
+              onClick={onResetAuth}
+            >
+              認証をリセット
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Approval QR modal */}

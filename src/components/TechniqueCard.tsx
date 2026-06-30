@@ -16,7 +16,7 @@ export function TechniqueCard({ technique, onTap }: TechniqueCardProps) {
   return (
     <button
       onClick={onTap}
-      className={`skill-card${technique.cleared ? ' skill-card-cleared' : ''} relative w-full bg-card rounded-2xl p-2 text-left card-shadow flex items-center gap-3`}
+      className={`skill-card${technique.cleared ? ' skill-card-cleared' : ''} relative w-full bg-card rounded-2xl p-2 text-left card-shadow flex items-center gap-3 transition-transform duration-150 ease-out active:scale-[0.98]`}
     >
       {/* Clear badge */}
       {technique.cleared && (

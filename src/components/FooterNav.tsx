@@ -30,7 +30,7 @@ export function FooterNav({ currentScreen, onNavigate }: FooterNavProps) {
           <button
             key={key}
             onClick={() => onNavigate(key)}
-            className={`footer-nav-item${isActive ? ' footer-nav-item-active' : ''} flex-1 flex items-center justify-center h-14 rounded-full transition-all ${
+            className={`footer-nav-item${isActive ? ' footer-nav-item-active' : ''} flex-1 flex items-center justify-center h-14 rounded-full transition-all duration-200 ease-out active:scale-95 ${
               isActive ? 'bg-white' : ''
             }`}
             aria-label={alt}

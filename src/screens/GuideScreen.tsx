@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { getImageUrl } from '../utils/images';
 
@@ -47,10 +48,10 @@ const guideSteps = [
   },
   {
     step: '03',
-    title: 'スタンプをゲット！',
+    title: 'QRを読み取って、検定クリア',
     image: 'guide03.webp',
-    lead: 'カメラで読み取ってレベルアップ！！',
-    body: '先生のQRコードを自分のスマホのカメラで読み取れば、検定クリア！どんどんスタンプを集めて、目指せスラックラインマスター！',
+    lead: 'SCANで読み取ってレベルアップ！！',
+    body: '先生のQRコードをアプリ内のSCANから読み取れば、検定クリア！目指せスラックラインマスター！',
   },
   {
     step: '04',
@@ -64,6 +65,8 @@ const guideSteps = [
 // ---- GuidePage ----
 
 export function GuideScreen({ onBack }: GuideScreenProps) {
+  const [isInstallGuideOpen, setIsInstallGuideOpen] = useState(false);
+
   return (
     <div className="guide-page static-page flex flex-col min-h-screen bg-background">
       <StaticPageHeader title="GUIDE" onBack={onBack} />
@@ -73,6 +76,7 @@ export function GuideScreen({ onBack }: GuideScreenProps) {
           {guideSteps.map((step, index) => {
             const imgUrl = getImageUrl(step.image);
             const isLast = index === guideSteps.length - 1;
+            const isInstallStep = step.step === '04';
 
             return (
               <div key={step.step} className="guide-step">
@@ -115,6 +119,56 @@ export function GuideScreen({ onBack }: GuideScreenProps) {
                 <p className="guide-step-body font-jp text-sm text-text-primary leading-relaxed">
                   {step.body}
                 </p>
+
+                {isInstallStep && (
+                  <div className="guide-install-guide mt-5">
+                    <button
+                      type="button"
+                      className="guide-install-toggle w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 flex items-center justify-between gap-3 text-left"
+                      onClick={() => setIsInstallGuideOpen((open) => !open)}
+                      aria-expanded={isInstallGuideOpen}
+                    >
+                      <span className="font-jp font-bold text-sm text-text-primary">
+                        ホーム画面への追加方法を見る
+                      </span>
+                      <span className={`tutorial-install-toggle-icon font-jost font-bold text-xl text-text-primary ${isInstallGuideOpen ? 'rotate-45' : ''}`}>
+                        +
+                      </span>
+                    </button>
+
+                    <div className={`tutorial-install-panel ${isInstallGuideOpen ? 'tutorial-install-panel-open' : ''}`}>
+                      <div className="guide-install-card bg-white rounded-2xl px-4 py-4 mt-3">
+                        <div className="guide-install-section">
+                          <p className="guide-install-heading font-jp font-bold text-sm text-text-primary mb-2">
+                            iPhoneの場合
+                          </p>
+                          <ol className="guide-install-list font-jp text-xs text-text-primary leading-relaxed list-decimal pl-5 space-y-1">
+                            <li>SafariでSLACK STEPSを開く</li>
+                            <li>共有ボタンをタップ</li>
+                            <li>「ホーム画面に追加」を選択</li>
+                            <li>追加されたアイコンから起動</li>
+                          </ol>
+                        </div>
+
+                        <div className="guide-install-section mt-4">
+                          <p className="guide-install-heading font-jp font-bold text-sm text-text-primary mb-2">
+                            Androidの場合
+                          </p>
+                          <ol className="guide-install-list font-jp text-xs text-text-primary leading-relaxed list-decimal pl-5 space-y-1">
+                            <li>ChromeでSLACK STEPSを開く</li>
+                            <li>メニューをタップ</li>
+                            <li>「アプリをインストール」または「ホーム画面に追加」を選択</li>
+                            <li>追加されたアイコンから起動</li>
+                          </ol>
+                        </div>
+
+                        <p className="guide-install-note font-jp text-[11px] text-text-secondary leading-relaxed mt-4">
+                          ※QRは端末のカメラアプリではなく、SLACK STEPS内のSCANから読み取ってください。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Divider between steps */}
                 {!isLast && (
